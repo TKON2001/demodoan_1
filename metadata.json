@@ -1,0 +1,5 @@
+{
+  "name": "demo-1",
+  "description": "Nền tảng đánh giá và so sánh hiệu năng các mô hình ngôn ngữ lớn (LLM) với giao diện tiếng Việt.",
+  "requestFramePermissions": []
+}
