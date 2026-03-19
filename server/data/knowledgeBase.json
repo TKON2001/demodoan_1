@@ -1,0 +1,22 @@
+[
+  {
+    "domain": "Lập trình (Coding/React)",
+    "content": "Trong React, hook useEffect không nên chứa các object hoặc array được khai báo trực tiếp bên trong component vào dependency array, vì mỗi lần render chúng sẽ tạo ra reference mới gây ra infinite loop (lặp vô hạn). Nên dùng useMemo, useCallback hoặc đưa ra ngoài component."
+  },
+  {
+    "domain": "Lập trình (Coding/Next.js)",
+    "content": "Next.js 13+ sử dụng App Router mặc định. Các component trong thư mục app/ mặc định là Server Components. Để sử dụng các hook như useState, useEffect, cần thêm chỉ thị 'use client' ở đầu file."
+  },
+  {
+    "domain": "Y tế (Medical)",
+    "content": "Paracetamol là thuốc giảm đau, hạ sốt. Liều dùng thông thường cho người lớn là 500mg đến 1000mg mỗi 4-6 giờ, không quá 4000mg/ngày. Quá liều có thể gây suy gan cấp."
+  },
+  {
+    "domain": "Marketing",
+    "content": "SEO (Search Engine Optimization) bao gồm 3 trụ cột chính: On-page SEO (tối ưu nội dung và thẻ HTML), Off-page SEO (xây dựng backlink và tín hiệu mạng xã hội), và Technical SEO (tối ưu tốc độ tải trang, sitemap, robots.txt)."
+  },
+  {
+    "domain": "Lịch sử (History)",
+    "content": "Chiến tranh thế giới thứ hai (WWII) diễn ra từ năm 1939 đến năm 1945, liên quan đến phần lớn các quốc gia trên thế giới, chia thành hai liên minh quân sự chính: Đồng minh và Trục."
+  }
+]

@@ -12,7 +12,8 @@
 
 Dự án đã được triển khai hoàn chỉnh trên môi trường web. Người dùng **không cần tải về hay cài đặt bất kỳ phần mềm nào**, chỉ cần truy cập vào đường link bên dưới để sử dụng trực tiếp:
 
-👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://demodoan-1.vercel.app/)**  
+👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://your-project-name.vercel.app)**  
+*(Lưu ý: Thay thế đường link trên bằng URL Vercel thực tế của bạn)*
 
 ---
 
@@ -44,6 +45,8 @@ graph TD
         API[Vercel Serverless Functions]
         Controller[Evaluation Controller]
         JudgeLogic[LLM-as-a-Judge Logic]
+        RAG[RAG Pipeline & Vector Search]
+        KB[(In-memory Knowledge Base)]
     end
 
     subgraph External_APIs [Các API LLM Bên Ngoài]
@@ -64,7 +67,10 @@ graph TD
     Controller -->|Gửi yêu cầu song song| External_APIs
     External_APIs -->|Trả về câu trả lời| Controller
     Controller -->|Gửi câu trả lời để chấm điểm| JudgeLogic
-    JudgeLogic -->|Gọi API Trọng tài| Anthropic
+    JudgeLogic -->|1. Lấy Embedding của Prompt| Gemini
+    JudgeLogic -->|2. Truy xuất Context liên quan| RAG
+    RAG <--> KB
+    JudgeLogic -->|3. Gọi API Trọng tài + Context| Anthropic
     JudgeLogic -->|Fallback Trọng tài| Gemini
     JudgeLogic -->|Trả về Điểm số| Controller
     Controller -->|Trả về Kết quả| UI
@@ -74,7 +80,7 @@ graph TD
 
 ## ⚙️ Sơ đồ Luồng xử lý Logic (Logic Flow Diagram)
 
-Dưới đây là sơ đồ tuần tự mô tả luồng xử lý cốt lõi của hệ thống khi người dùng thực hiện một yêu cầu đánh giá:
+Dưới đây là sơ đồ tuần tự mô tả luồng xử lý cốt lõi của hệ thống khi người dùng thực hiện một yêu cầu đánh giá, đặc biệt nhấn mạnh vào **cơ chế RAG (Retrieval-Augmented Generation)** để chống ảo giác (hallucination) cho Trọng tài AI:
 
 ```mermaid
 sequenceDiagram
@@ -82,6 +88,7 @@ sequenceDiagram
     participant UI as Frontend (React)
     participant API as Backend (Serverless)
     participant LLMs as Các Mô hình LLM
+    participant RAG as RAG Service (Vector Search)
     participant Judge as Trọng tài AI (Claude/Gemini)
 
     User->>UI: 1. Nhập Prompt, chọn Models & Reference (Tùy chọn)
@@ -95,17 +102,22 @@ sequenceDiagram
     deactivate LLMs
     
     loop Chấm điểm từng câu trả lời
-        API->>Judge: 6. Gửi Prompt + Câu trả lời + Reference
+        API->>RAG: 6. Gửi Prompt để tìm kiếm ngữ cảnh
+        activate RAG
+        RAG-->>API: 7. Trả về Top 2 FAQ/Context liên quan nhất
+        deactivate RAG
+        
+        API->>Judge: 8. Gửi Prompt + Câu trả lời + RAG Context
         activate Judge
-        Judge-->>API: 7. Trả về JSON (Score & Reasoning)
+        Judge-->>API: 9. Trả về JSON (Score & Reasoning)
         deactivate Judge
     end
     
-    API-->>UI: 8. Trả về mảng kết quả tổng hợp
+    API-->>UI: 10. Trả về mảng kết quả tổng hợp
     deactivate API
     
-    UI->>UI: 9. Cập nhật State & Lưu vào Lịch sử (Local Storage)
-    UI->>User: 10. Hiển thị Biểu đồ Radar & Bảng so sánh chi tiết
+    UI->>UI: 11. Cập nhật State & Lưu vào Lịch sử (Local Storage)
+    UI->>User: 12. Hiển thị Biểu đồ Radar & Bảng so sánh chi tiết
 ```
 
 ---
@@ -131,18 +143,25 @@ sequenceDiagram
   - `fetch` API chuẩn cho OpenAI, Anthropic, DeepSeek, và Groq.
 - Xử lý lỗi (Error Handling) để đảm bảo nếu một mô hình bị lỗi (ví dụ: sai API Key), các mô hình khác vẫn trả về kết quả bình thường.
 
-### Bước 4: Cài đặt thuật toán Trọng tài AI (LLM-as-a-Judge)
+### Bước 4: Tích hợp RAG (Retrieval-Augmented Generation) chống ảo giác
+- Thay vì "nhồi nhét" toàn bộ tài liệu vào prompt của Trọng tài (gây tốn token và chậm), hệ thống áp dụng kỹ thuật RAG.
+- **Vector Search**: Sử dụng `gemini-embedding-2-preview` để chuyển đổi Prompt và Knowledge Base (FAQ) thành Vector.
+- **Cosine Similarity**: Tính toán độ tương đồng và chỉ trích xuất Top 2 đoạn ngữ cảnh (Context) liên quan nhất.
+- Kỹ thuật này giúp Trọng tài AI có thêm "kiến thức nền" chính xác để chấm điểm, mở rộng ra nhiều lĩnh vực (Y tế, Lập trình, Marketing...) mà không cần fine-tune model.
+
+### Bước 5: Cài đặt thuật toán Trọng tài AI (Domain-Aware Judge)
 - Viết System Prompt chuyên biệt để biến một LLM thành giám khảo khách quan.
+- Bơm (Inject) ngữ cảnh RAG lấy được từ Bước 4 vào Prompt để tạo thành **Domain-Aware Judge**.
 - Cấu hình ưu tiên sử dụng **Claude 3.5 Sonnet** làm trọng tài do khả năng suy luận logic xuất sắc.
 - Xây dựng cơ chế **Fallback**: Nếu người dùng không có API Key của Claude, hệ thống tự động chuyển sang dùng **Gemini** làm trọng tài thay thế.
 - Ép kiểu dữ liệu trả về của Trọng tài dưới dạng `JSON` (gồm `score` và `reasoning`) để Backend dễ dàng parse và xử lý.
 
-### Bước 5: Trực quan hóa dữ liệu & Quản lý trạng thái
+### Bước 6: Trực quan hóa dữ liệu & Quản lý trạng thái
 - Tích hợp thư viện **Recharts** để vẽ biểu đồ Radar, giúp người dùng nhìn nhận đa chiều về sức mạnh của từng mô hình.
 - Cài đặt tính năng lưu trữ Lịch sử đánh giá vào `localStorage`, cho phép người dùng xem lại các bài test cũ mà không cần gọi lại API.
 - Thêm tính năng xuất dữ liệu ra file CSV phục vụ cho việc làm báo cáo.
 
-### Bước 6: Kiểm thử & Triển khai (Deployment)
+### Bước 7: Kiểm thử & Triển khai (Deployment)
 - Tối ưu hóa mã nguồn, loại bỏ các thư viện không cần thiết.
 - Cấu hình file `vercel.json` để định tuyến chính xác các request `/api/*` vào Serverless Functions.
 - Triển khai toàn bộ dự án lên nền tảng **Vercel**, đảm bảo ứng dụng hoạt động mượt mà trên môi trường Internet thực tế.
