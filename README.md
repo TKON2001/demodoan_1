@@ -41,7 +41,7 @@ Dự án được xây dựng theo mô hình Full-Stack hiện đại:
 - Node.js (phiên bản 18+ khuyến nghị)
 - npm hoặc yarn
 
-### Các bước cài đặt
+### Các bước cài đặt (Local)
 
 1. **Clone repository** (hoặc tải mã nguồn về máy)
 
@@ -68,6 +68,21 @@ Dự án được xây dựng theo mô hình Full-Stack hiện đại:
    npm run build
    npm start
    ```
+
+### 🌐 Triển khai lên Vercel (Publish)
+
+Dự án đã được cấu hình sẵn để dễ dàng triển khai (deploy) lên Vercel hoàn toàn miễn phí.
+
+1. Đăng nhập vào [Vercel](https://vercel.com/) bằng tài khoản GitHub/GitLab.
+2. Tạo một Project mới và chọn Import từ Repository chứa mã nguồn này.
+3. Trong phần cấu hình Project trên Vercel:
+   - **Framework Preset**: Chọn `Vite` (Vercel thường tự nhận diện).
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Mở phần **Environment Variables** và thêm:
+   - `GEMINI_API_KEY`: (API Key của Gemini để làm trọng tài mặc định)
+5. Nhấn **Deploy**. Vercel sẽ tự động build Frontend (Vite) và chuyển đổi Backend (Express) thành Serverless Functions thông qua thư mục `/api` và cấu hình `vercel.json`.
+6. Sau khi hoàn tất, bạn sẽ nhận được một đường link (URL) để truy cập ứng dụng trực tuyến!
 
 ## 💡 Cách sử dụng
 
