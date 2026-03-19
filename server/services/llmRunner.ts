@@ -2,7 +2,10 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function runModel(prompt: string, modelName: string, apiKeys?: any): Promise<string> {
   if (modelName === "Gemini") {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const key = apiKeys?.gemini || process.env.GEMINI_API_KEY;
+    if (!key) return runMockModel(prompt, "Gemini 1.5 Pro", 1200);
+    
+    const ai = new GoogleGenAI({ apiKey: key });
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,

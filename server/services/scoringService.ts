@@ -1,7 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export async function evaluateWithLLMJudge(prompt: string, response: string, reference?: string, apiKeys?: any): Promise<{score: number, reasoning: string}> {
   try {
     let systemInstruction = "Bạn là một giám khảo AI khách quan (LLM-as-a-Judge). Nhiệm vụ của bạn là đánh giá chất lượng câu trả lời của một AI khác dựa trên yêu cầu của người dùng. Trả về kết quả dưới dạng JSON với 2 trường: 'score' (số từ 0.0 đến 1.0) và 'reasoning' (giải thích ngắn gọn bằng tiếng Việt).";
@@ -43,6 +41,11 @@ export async function evaluateWithLLMJudge(prompt: string, response: string, ref
 
     // Fallback to Gemini nếu không có Claude key hoặc Claude lỗi
     if (jsonStr === "{}") {
+      const geminiKey = apiKeys?.gemini || process.env.GEMINI_API_KEY;
+      if (!geminiKey) {
+        return { score: 0.5, reasoning: "Không có API key cho trọng tài (Claude hoặc Gemini). Trả về điểm giả lập." };
+      }
+      const ai = new GoogleGenAI({ apiKey: geminiKey });
       const result = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents,

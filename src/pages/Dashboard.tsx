@@ -15,7 +15,7 @@ import { Activity, AlertCircle, Settings, History as HistoryIcon, Download, Book
 
 export function Dashboard() {
   const [selectedModels, setSelectedModels] = useState<string[]>(["Gemini", "GPT"]);
-  const [apiKeys, setApiKeys] = useState<ApiKeys>({ openai: '', deepseek: '', groq: '', anthropic: '' });
+  const [apiKeys, setApiKeys] = useState<ApiKeys>({ openai: '', deepseek: '', groq: '', anthropic: '', gemini: '' });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);

@@ -6,6 +6,7 @@ export interface ApiKeys {
   deepseek: string;
   groq: string;
   anthropic: string;
+  gemini: string;
 }
 
 interface ApiKeysModalProps {
@@ -44,9 +45,21 @@ export function ApiKeysModal({ isOpen, onClose, onSave, initialKeys }: ApiKeysMo
         
         <div className="p-6 space-y-5">
           <p className="text-sm text-gray-500">
-            <strong>Gemini API Key</strong> đã được cấu hình sẵn. Nhập API Key cho các mô hình khác nếu bạn muốn đánh giá chúng. Các key này được lưu an toàn trên trình duyệt (Local Storage).
+            Nhập API Key cho các mô hình bạn muốn đánh giá. Các key này được lưu an toàn trên trình duyệt (Local Storage).
           </p>
           
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Gemini API Key</label>
+            <input
+              type="password"
+              value={keys.gemini}
+              onChange={(e) => setKeys({ ...keys, gemini: e.target.value })}
+              placeholder="AIzaSy..."
+              className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+            <p className="text-xs text-gray-400 mt-1">Dùng cho mô hình Gemini và Trọng tài dự phòng</p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Anthropic API Key (Claude)</label>
             <input
