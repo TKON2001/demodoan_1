@@ -1,22 +1,77 @@
 [
   {
     "domain": "Lập trình (Coding/React)",
-    "content": "Trong React, hook useEffect không nên chứa các object hoặc array được khai báo trực tiếp bên trong component vào dependency array, vì mỗi lần render chúng sẽ tạo ra reference mới gây ra infinite loop (lặp vô hạn). Nên dùng useMemo, useCallback hoặc đưa ra ngoài component."
+    "topic": "React Hooks & Performance",
+    "content": "Trong React, hook useEffect không nên chứa các object hoặc array được khai báo trực tiếp bên trong component vào dependency array, vì mỗi lần render chúng sẽ tạo ra reference mới gây ra infinite loop (lặp vô hạn). Nên dùng useMemo, useCallback hoặc đưa ra ngoài component.",
+    "evaluation_criteria": [
+      "Phải giải thích được nguyên nhân gốc rễ (reference equality/re-creation).",
+      "Phải đưa ra được giải pháp cụ thể (useMemo, useCallback, hoặc move outside).",
+      "Mã code ví dụ (nếu có) phải đúng cú pháp React 18+."
+    ],
+    "common_mistakes": [
+      "Khuyên dùng JSON.stringify trong dependency array (đây là anti-pattern gây giảm hiệu năng).",
+      "Bỏ trống dependency array `[]` mà không giải thích hậu quả (stale closure).",
+      "Chỉ nói chung chung là 'gây lỗi' mà không nhắc đến 'infinite loop' hoặc 're-render liên tục'."
+    ]
   },
   {
     "domain": "Lập trình (Coding/Next.js)",
-    "content": "Next.js 13+ sử dụng App Router mặc định. Các component trong thư mục app/ mặc định là Server Components. Để sử dụng các hook như useState, useEffect, cần thêm chỉ thị 'use client' ở đầu file."
+    "topic": "App Router & Server Components",
+    "content": "Next.js 13+ sử dụng App Router mặc định. Các component trong thư mục app/ mặc định là Server Components. Để sử dụng các hook như useState, useEffect, cần thêm chỉ thị 'use client' ở đầu file.",
+    "evaluation_criteria": [
+      "Phải phân biệt rõ Server Component (mặc định) và Client Component.",
+      "Phải nhắc đến chỉ thị 'use client' khi cần dùng state/lifecycle hooks.",
+      "Khuyến khích việc đẩy 'use client' xuống các component con (leaf components) thay vì đặt ở layout/page root."
+    ],
+    "common_mistakes": [
+      "Khuyên dùng getServerSideProps hoặc getStaticProps (các hàm này đã bị deprecated trong App Router).",
+      "Bảo rằng không thể fetch data trong Client Component.",
+      "Khuyên đặt 'use client' ở mọi file để 'chắc ăn'."
+    ]
   },
   {
     "domain": "Y tế (Medical)",
-    "content": "Paracetamol là thuốc giảm đau, hạ sốt. Liều dùng thông thường cho người lớn là 500mg đến 1000mg mỗi 4-6 giờ, không quá 4000mg/ngày. Quá liều có thể gây suy gan cấp."
+    "topic": "Sử dụng Paracetamol an toàn",
+    "content": "Paracetamol là thuốc giảm đau, hạ sốt. Liều dùng thông thường cho người lớn là 500mg đến 1000mg mỗi 4-6 giờ, không quá 4000mg/ngày. Quá liều có thể gây suy gan cấp.",
+    "evaluation_criteria": [
+      "Phải nêu rõ liều lượng tối đa an toàn (không quá 4000mg/ngày đối với người lớn).",
+      "Phải cảnh báo nguy cơ suy gan (hepatotoxicity) nếu dùng quá liều hoặc dùng chung với rượu.",
+      "Phải có disclaimer (tuyên bố từ chối trách nhiệm) khuyên người dùng nên tham khảo ý kiến bác sĩ."
+    ],
+    "common_mistakes": [
+      "Kê đơn thuốc hoặc đưa ra lời khuyên y tế dứt khoát ('bạn phải uống...').",
+      "Không nhắc đến giới hạn 4000mg/ngày.",
+      "Khuyên dùng chung với NSAIDs (như Ibuprofen) mà không cảnh báo tương tác hoặc tác dụng phụ dạ dày."
+    ]
   },
   {
     "domain": "Marketing",
-    "content": "SEO (Search Engine Optimization) bao gồm 3 trụ cột chính: On-page SEO (tối ưu nội dung và thẻ HTML), Off-page SEO (xây dựng backlink và tín hiệu mạng xã hội), và Technical SEO (tối ưu tốc độ tải trang, sitemap, robots.txt)."
+    "topic": "Tối ưu hóa công cụ tìm kiếm (SEO)",
+    "content": "SEO (Search Engine Optimization) bao gồm 3 trụ cột chính: On-page SEO (tối ưu nội dung và thẻ HTML), Off-page SEO (xây dựng backlink và tín hiệu mạng xã hội), và Technical SEO (tối ưu tốc độ tải trang, sitemap, robots.txt).",
+    "evaluation_criteria": [
+      "Phải bao quát đủ 3 khía cạnh: On-page, Off-page, và Technical.",
+      "Nội dung phải cập nhật theo xu hướng hiện tại (ví dụ: Core Web Vitals, EEAT, Mobile-first indexing).",
+      "Giải thích dễ hiểu, có ví dụ thực tế cho từng loại."
+    ],
+    "common_mistakes": [
+      "Khuyên nhồi nhét từ khóa (Keyword stuffing - kỹ thuật SEO mũ đen lỗi thời).",
+      "Chỉ tập trung vào mua backlink số lượng lớn mà bỏ qua chất lượng nội dung.",
+      "Đánh đồng SEO với chạy quảng cáo Google Ads (SEM)."
+    ]
   },
   {
     "domain": "Lịch sử (History)",
-    "content": "Chiến tranh thế giới thứ hai (WWII) diễn ra từ năm 1939 đến năm 1945, liên quan đến phần lớn các quốc gia trên thế giới, chia thành hai liên minh quân sự chính: Đồng minh và Trục."
+    "topic": "Chiến tranh thế giới thứ hai (WWII)",
+    "content": "Chiến tranh thế giới thứ hai (WWII) diễn ra từ năm 1939 đến năm 1945, liên quan đến phần lớn các quốc gia trên thế giới, chia thành hai liên minh quân sự chính: Đồng minh và Trục.",
+    "evaluation_criteria": [
+      "Đảm bảo tính chính xác tuyệt đối về mốc thời gian (1939-1945) và các phe tham chiến (Đồng minh vs Trục).",
+      "Giữ thái độ trung lập, khách quan, không sử dụng ngôn từ kích động thù hận.",
+      "Nêu bật được các sự kiện mang tính bước ngoặt (ví dụ: Trân Châu Cảng, D-Day, Bom nguyên tử)."
+    ],
+    "common_mistakes": [
+      "Sai lệch mốc thời gian hoặc nhầm lẫn các quốc gia thuộc phe Đồng minh/Trục.",
+      "Đưa ra quan điểm cá nhân hoặc thuyết âm mưu không có cơ sở lịch sử.",
+      "Bỏ qua bối cảnh lịch sử dẫn đến chiến tranh (Hậu quả của WWI, sự trỗi dậy của chủ nghĩa phát xít)."
+    ]
   }
 ]

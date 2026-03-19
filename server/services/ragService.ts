@@ -71,10 +71,20 @@ export async function retrieveContext(prompt: string, apiKey: string): Promise<s
 
     // 5. Format lại ngữ cảnh để đưa vào LLM Judge
     const formattedContext = topContexts
-      .map((c, index) => `[Lĩnh vực: ${c.domain}]\n- ${c.content}`)
+      .map((c, index) => {
+        const kbItem = knowledgeBase.find(kb => kb.content === c.content);
+        if (!kbItem) return `[Lĩnh vực: ${c.domain}]\n- ${c.content}`;
+        
+        return `[Lĩnh vực: ${c.domain} - Chủ đề: ${kbItem.topic}]
+- Kiến thức nền: ${kbItem.content}
+- Tiêu chí đánh giá bắt buộc (Rubric):
+  ${kbItem.evaluation_criteria.map(crit => `* ${crit}`).join('\n  ')}
+- Các lỗi thường gặp cần trừ điểm (Common Mistakes):
+  ${kbItem.common_mistakes.map(mistake => `* ${mistake}`).join('\n  ')}`;
+      })
       .join("\n\n");
 
-    return `\n\n=== KIẾN THỨC THAM KHẢO (RAG CONTEXT) ===\nDưới đây là các thông tin đã được kiểm chứng liên quan đến câu hỏi. Hãy dùng nó làm cơ sở để chấm điểm (nếu phù hợp):\n${formattedContext}\n=========================================\n`;
+    return `\n\n=== TIÊU CHÍ ĐÁNH GIÁ CHUYÊN MÔN (RAG RUBRIC) ===\nDưới đây là bộ tiêu chí chấm điểm chuyên sâu được trích xuất từ hệ thống. Bạn BẮT BUỘC phải đối chiếu câu trả lời với các tiêu chí này để cho điểm:\n\n${formattedContext}\n=================================================\n`;
   } catch (error) {
     console.error("RAG Retrieval Error:", error);
     return ""; // Fallback an toàn nếu lỗi

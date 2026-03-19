@@ -12,8 +12,8 @@
 
 Dự án đã được triển khai hoàn chỉnh trên môi trường web. Người dùng **không cần tải về hay cài đặt bất kỳ phần mềm nào**, chỉ cần truy cập vào đường link bên dưới để sử dụng trực tiếp:
 
-👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://ainexusevaluation.vercel.app/)**  
-
+👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://your-project-name.vercel.app)**  
+*(Lưu ý: Thay thế đường link trên bằng URL Vercel thực tế của bạn)*
 
 ---
 
@@ -22,7 +22,13 @@ Dự án đã được triển khai hoàn chỉnh trên môi trường web. Ngư
 Trong bối cảnh Trí tuệ Nhân tạo (AI) và các Mô hình Ngôn ngữ Lớn (LLM) phát triển bùng nổ, người dùng và các nhà phát triển gặp khó khăn trong việc lựa chọn mô hình phù hợp nhất cho nhu cầu của mình. Mỗi mô hình (Gemini, ChatGPT, Claude, DeepSeek...) đều có ưu/nhược điểm riêng về độ chính xác, tốc độ và chi phí.
 
 **Mục tiêu của đồ án:**
-Xây dựng một nền tảng web tập trung, cho phép người dùng gửi cùng một câu hỏi (prompt) đến nhiều LLM khác nhau cùng lúc. Sau đó, hệ thống sẽ sử dụng một **Trọng tài AI (LLM-as-a-Judge)** để tự động chấm điểm, phân tích và trực quan hóa kết quả, giúp người dùng đưa ra quyết định lựa chọn mô hình tối ưu nhất một cách khách quan.
+Xây dựng một nền tảng web tập trung, cho phép người dùng gửi cùng một câu hỏi (prompt) đến nhiều LLM khác nhau cùng lúc. Sau đó, hệ thống sẽ sử dụng một **Trọng tài AI (LLM-as-a-Judge)** kết hợp với **Rubric-based RAG** để tự động chấm điểm, phân tích và trực quan hóa kết quả, giúp người dùng đưa ra quyết định lựa chọn mô hình tối ưu nhất một cách khách quan.
+
+**Tính năng nổi bật:**
+- 🏆 **Rubric-based RAG (Tiên tiến)**: Không chỉ cung cấp ngữ cảnh (Fact) thông thường, hệ thống RAG trích xuất các **Tiêu chí đánh giá (Evaluation Criteria)** và **Lỗi thường gặp (Common Mistakes)** chuyên sâu theo từng lĩnh vực để ép Trọng tài AI chấm điểm theo luật của chuyên gia.
+- 🚀 **Đánh giá song song (Parallel Evaluation)**: Gửi prompt đến nhiều mô hình cùng lúc, tiết kiệm tối đa thời gian.
+- 📊 **Phân tích đa chiều**: So sánh điểm số, thời gian phản hồi (latency), và chi phí token.
+- 🔒 **Bảo mật tuyệt đối**: API Keys được lưu trữ an toàn trên Local Storage của trình duyệt, không bao giờ gửi lên database.
 
 ---
 
@@ -104,10 +110,10 @@ sequenceDiagram
     loop Chấm điểm từng câu trả lời
         API->>RAG: 6. Gửi Prompt để tìm kiếm ngữ cảnh
         activate RAG
-        RAG-->>API: 7. Trả về Top 2 FAQ/Context liên quan nhất
+        RAG-->>API: 7. Trả về Top 2 Rubric (Tiêu chí & Lỗi thường gặp)
         deactivate RAG
         
-        API->>Judge: 8. Gửi Prompt + Câu trả lời + RAG Context
+        API->>Judge: 8. Gửi Prompt + Câu trả lời + RAG Rubric
         activate Judge
         Judge-->>API: 9. Trả về JSON (Score & Reasoning)
         deactivate Judge
@@ -145,13 +151,15 @@ sequenceDiagram
 
 ### Bước 4: Tích hợp RAG (Retrieval-Augmented Generation) chống ảo giác
 - Thay vì "nhồi nhét" toàn bộ tài liệu vào prompt của Trọng tài (gây tốn token và chậm), hệ thống áp dụng kỹ thuật RAG.
-- **Vector Search**: Sử dụng `gemini-embedding-2-preview` để chuyển đổi Prompt và Knowledge Base (FAQ) thành Vector.
-- **Cosine Similarity**: Tính toán độ tương đồng và chỉ trích xuất Top 2 đoạn ngữ cảnh (Context) liên quan nhất.
-- Kỹ thuật này giúp Trọng tài AI có thêm "kiến thức nền" chính xác để chấm điểm, mở rộng ra nhiều lĩnh vực (Y tế, Lập trình, Marketing...) mà không cần fine-tune model.
+- **Nâng cấp từ Fact-based lên Rubric-based RAG**: Không chỉ cung cấp kiến thức nền (Fact), hệ thống RAG trích xuất các **Tiêu chí đánh giá (Evaluation Criteria)** và **Lỗi thường gặp (Common Mistakes)** chuyên sâu theo từng lĩnh vực (Y tế, Lập trình, Marketing...).
+- **Vector Search**: Sử dụng `gemini-embedding-2-preview` để chuyển đổi Prompt và Knowledge Base thành Vector.
+- **Cosine Similarity**: Tính toán độ tương đồng và chỉ trích xuất Top 2 đoạn Rubric liên quan nhất.
+- Kỹ thuật này giúp Trọng tài AI có "thước đo chuẩn" để chấm điểm, mở rộng ra nhiều lĩnh vực mà không cần fine-tune model.
 
 ### Bước 5: Cài đặt thuật toán Trọng tài AI (Domain-Aware Judge)
 - Viết System Prompt chuyên biệt để biến một LLM thành giám khảo khách quan.
 - Bơm (Inject) ngữ cảnh RAG lấy được từ Bước 4 vào Prompt để tạo thành **Domain-Aware Judge**.
+- **Ép buộc tuân thủ Rubric**: Trọng tài AI bị bắt buộc phải đối chiếu câu trả lời với các tiêu chí và trừ điểm nặng nếu mắc phải các lỗi thường gặp trong Rubric.
 - Cấu hình ưu tiên sử dụng **Claude 3.5 Sonnet** làm trọng tài do khả năng suy luận logic xuất sắc.
 - Xây dựng cơ chế **Fallback**: Nếu người dùng không có API Key của Claude, hệ thống tự động chuyển sang dùng **Gemini** làm trọng tài thay thế.
 - Ép kiểu dữ liệu trả về của Trọng tài dưới dạng `JSON` (gồm `score` và `reasoning`) để Backend dễ dàng parse và xử lý.
