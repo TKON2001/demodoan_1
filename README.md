@@ -12,8 +12,8 @@
 
 Dự án đã được triển khai hoàn chỉnh trên môi trường web. Người dùng **không cần tải về hay cài đặt bất kỳ phần mềm nào**, chỉ cần truy cập vào đường link bên dưới để sử dụng trực tiếp:
 
-👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://your-project-name.vercel.app)**  
-*(Lưu ý: Thay thế đường link trên bằng URL Vercel thực tế của bạn)*
+👉 **[Truy cập AI Nexus Evaluation Platform tại đây](https://ainexusevaluation.vercel.app/)**  
+
 
 ---
 
