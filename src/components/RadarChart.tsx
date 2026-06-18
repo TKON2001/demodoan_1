@@ -42,13 +42,14 @@ export function RadarChart({ data }: RadarChartProps) {
   ];
 
   const chartData = {
-    labels: ['Tốc độ (Nhanh)', 'Tiết kiệm chi phí', 'Độ chính xác'],
+    labels: ['Tốc độ (Latency)', 'Chi phí (Cost)', 'Độ chính xác (Quality)', 'Token (Efficiency)'],
     datasets: data.filter(d => d.status === 'success').map((d, i) => ({
       label: d.model,
       data: [
-        1 - (d.latency / maxLatency) * 0.8, // Normalize to 0.2 - 1.0
-        d.cost === 0 ? 1 : 1 - (d.cost / maxCost) * 0.8,
-        d.accuracy !== null ? d.accuracy : 0.5, // Default 0.5 if no reference
+        (d.latencyScore || 0) / 10,
+        (d.costScore || 0) / 10,
+        (d.qualityScore || 0) / 10,
+        (d.tokenScore || 0) / 10,
       ],
       backgroundColor: colors[i % colors.length].bg,
       borderColor: colors[i % colors.length].border,

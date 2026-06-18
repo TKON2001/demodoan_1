@@ -18,10 +18,26 @@ export function ResponseComparisonPanel({ data }: ResponseComparisonPanelProps) 
         {data.map((r, i) => (
           <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
             <div className="bg-gray-50 px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-              <span className="font-bold text-gray-900">{r.model}</span>
-              <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100">
-                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                <span className="text-xs font-bold">{r.accuracy}/10</span>
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-gray-900">{r.model}</span>
+                {r.rank && (
+                  <span className="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs font-bold rounded-md">
+                    Hạng {r.rank}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">Chất lượng</span>
+                  <div className="flex items-center gap-1 text-amber-600">
+                    <Star className="w-3.5 h-3.5 fill-amber-500" />
+                    <span className="text-xs font-bold">{r.qualityScore !== undefined ? r.qualityScore : (r.accuracy * 10).toFixed(1)}/10</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end pl-2 border-l border-gray-200">
+                  <span className="text-[10px] font-bold text-indigo-400 uppercase">Tổng điểm</span>
+                  <span className="text-xs font-bold text-indigo-700">{r.totalScore !== undefined ? r.totalScore : '-'}</span>
+                </div>
               </div>
             </div>
             <div className="p-5 bg-white flex-1">

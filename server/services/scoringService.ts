@@ -3,6 +3,29 @@ import { retrieveContext } from "./ragService";
 
 export async function evaluateWithLLMJudge(prompt: string, response: string, reference?: string, apiKeys?: any): Promise<{score: number, reasoning: string}> {
   try {
+    const mockMode = apiKeys?.useMockMode === true;
+    if (mockMode) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          let score = 0.8;
+          if (response.includes("JSON.stringify([1,2,3])") || response.includes("không có vấn đề gì nghiêm trọng") || response.includes("3 viên sủi kết hợp")) {
+            score = 0.35;
+          } else if (response.includes("tham chiếu vùng nhớ") || response.includes("useMemo") || response.includes("suy gan cấp tính") || response.includes("khắc phục")) {
+            score = 0.95;
+          }
+
+          resolve({
+            score: score,
+            reasoning: `[MOCK JUDGE] Phản hồi đã được đánh giá giả lập. ${
+              score > 0.8 ? "Câu trả lời chính xác, bám sát chuyên môn và đúng với tiêu chí đánh giá." : 
+              score < 0.5 ? "Câu trả lời có lỗi nghiêm trọng, vi phạm quy tắc an toàn hoặc best-practice." :
+              "Câu trả lời đạt mức cơ bản nhưng còn thiếu sót hoặc chưa giải thích rõ ràng."
+            }`
+          });
+        }, 1500);
+      });
+    }
+
     const geminiKey = apiKeys?.gemini || process.env.GEMINI_API_KEY;
     
     // 1. RAG Pipeline: Lấy ngữ cảnh (Context) liên quan từ Vector DB (In-memory)
@@ -68,7 +91,7 @@ Hãy trả về JSON với định dạng:
     // Fallback to Gemini nếu không có Claude key hoặc Claude lỗi
     if (jsonStr === "{}") {
       if (!geminiKey) {
-        return { score: 0.5, reasoning: "Không có API key cho trọng tài (Claude hoặc Gemini). Trả về điểm giả lập." };
+        return { score: 0, reasoning: "Lỗi: Không có API key cho trọng tài (Claude hoặc Gemini) và chế độ giả lập đang tắt." };
       }
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const result = await ai.models.generateContent({

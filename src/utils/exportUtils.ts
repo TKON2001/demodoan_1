@@ -1,14 +1,23 @@
 export function exportToCSV(results: any[], prompt: string) {
   if (!results || results.length === 0) return;
 
-  const headers = ["Model", "Response", "Latency (s)", "Tokens", "Cost ($)", "Accuracy Score", "Reasoning"];
+  const headers = [
+    "Rank", "Model", "Response", "Latency (s)", "Tokens", "Cost ($)", 
+    "Quality Score", "Latency Score", "Cost Score", "Token Score", "Total Score",
+    "Reasoning"
+  ];
   const rows = results.map(r => [
+    r.rank || "-",
     r.model,
     `"${r.response.replace(/"/g, '""')}"`,
     r.latency,
     r.tokens,
     r.cost,
-    r.accuracy,
+    r.qualityScore,
+    r.latencyScore,
+    r.costScore,
+    r.tokenScore,
+    r.totalScore,
     `"${r.reasoning.replace(/"/g, '""')}"`
   ]);
 

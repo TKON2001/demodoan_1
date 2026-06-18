@@ -24,17 +24,20 @@ export function ResultTable({ data }: ResultTableProps) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="p-4 font-medium text-gray-600">Hạng</th>
               <th className="p-4 font-medium text-gray-600">Mô hình</th>
               <th className="p-4 font-medium text-gray-600">Trạng thái</th>
               <th className="p-4 font-medium text-gray-600">Thời gian (s)</th>
               <th className="p-4 font-medium text-gray-600">Token</th>
               <th className="p-4 font-medium text-gray-600">Chi phí ($)</th>
               <th className="p-4 font-medium text-gray-600">Độ chính xác</th>
+              <th className="p-4 font-medium text-gray-900 border-l border-gray-200">Điểm tổng hợp</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {data.map((r, i) => (
               <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                <td className="p-4 font-semibold text-gray-900">#{r.rank}</td>
                 <td className="p-4 font-medium text-gray-900">{r.model}</td>
                 <td className="p-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -47,7 +50,10 @@ export function ResultTable({ data }: ResultTableProps) {
                 <td className="p-4 text-gray-600">{r.tokens}</td>
                 <td className="p-4 text-gray-600">{r.cost.toFixed(4)}</td>
                 <td className="p-4 text-gray-600">
-                  {r.accuracy !== null ? `${(r.accuracy * 100).toFixed(1)}%` : '-'}
+                  {r.accuracy !== null ? `${(r.accuracy * 10).toFixed(1)}/10` : '-'}
+                </td>
+                <td className="p-4 font-bold text-indigo-600 border-l border-gray-100 bg-indigo-50/30">
+                  {r.totalScore !== undefined ? `${r.totalScore}/10` : '-'}
                 </td>
               </tr>
             ))}
