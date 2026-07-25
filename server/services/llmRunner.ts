@@ -1,23 +1,42 @@
 import { GoogleGenAI } from "@google/genai";
 
+const API_TIMEOUT = 8000; // 8s max per model request
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+  });
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    return result;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function runModel(prompt: string, modelName: string, apiKeys?: any): Promise<string> {
   const mockMode = apiKeys?.useMockMode === true;
 
   if (modelName === "Gemini") {
     const key = apiKeys?.gemini || process.env.GEMINI_API_KEY;
-    if (mockMode) return runMockModel(prompt, "Gemini 1.5 Pro", 1200);
+    if (mockMode) return runMockModel(prompt, "Gemini 1.5 Pro", 150);
     if (!key) throw new Error("Vui lòng nhập API Key cho Gemini hoặc bật chế độ giả lập trong phần Cài đặt");
     
     const ai = new GoogleGenAI({ apiKey: key });
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-    });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+      }),
+      API_TIMEOUT,
+      "Quá thời gian phản hồi từ Gemini API (Timeout)"
+    );
     return response.text || "";
   } 
   
   if (modelName === "GPT") {
-    if (mockMode) return runMockModel(prompt, "GPT-4o", 1500);
+    if (mockMode) return runMockModel(prompt, "GPT-4o", 200);
     if (!apiKeys?.openai) throw new Error("Vui lòng nhập API Key cho OpenAI hoặc bật chế độ giả lập trong phần Cài đặt");
     
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -29,7 +48,8 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }]
-      })
+      }),
+      signal: AbortSignal.timeout(API_TIMEOUT)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -40,7 +60,7 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
   } 
 
   if (modelName === "Claude") {
-    if (mockMode) return runMockModel(prompt, "Claude 3.5 Sonnet", 1800);
+    if (mockMode) return runMockModel(prompt, "Claude 3.5 Sonnet", 250);
     if (!apiKeys?.anthropic) throw new Error("Vui lòng nhập API Key cho Anthropic (Claude) hoặc bật chế độ giả lập trong phần Cài đặt");
     
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -52,9 +72,10 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
       },
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 4096,
+        max_tokens: 2048,
         messages: [{ role: "user", content: prompt }]
-      })
+      }),
+      signal: AbortSignal.timeout(API_TIMEOUT)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -65,7 +86,7 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
   }
   
   if (modelName === "DeepSeek") {
-    if (mockMode) return runMockModel(prompt, "DeepSeek-V3", 1200);
+    if (mockMode) return runMockModel(prompt, "DeepSeek-V3", 200);
     if (!apiKeys?.deepseek) throw new Error("Vui lòng nhập API Key cho DeepSeek hoặc bật chế độ giả lập trong phần Cài đặt");
     
     const res = await fetch("https://api.deepseek.com/chat/completions", {
@@ -77,7 +98,8 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
       body: JSON.stringify({
         model: "deepseek-chat",
         messages: [{ role: "user", content: prompt }]
-      })
+      }),
+      signal: AbortSignal.timeout(API_TIMEOUT)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -88,7 +110,7 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
   } 
   
   if (modelName === "Llama") {
-    if (mockMode) return runMockModel(prompt, "Llama-3", 1000);
+    if (mockMode) return runMockModel(prompt, "Llama-3", 180);
     if (!apiKeys?.groq) throw new Error("Vui lòng nhập API Key cho Groq (Llama) hoặc bật chế độ giả lập trong phần Cài đặt");
     
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -100,7 +122,8 @@ export async function runModel(prompt: string, modelName: string, apiKeys?: any)
       body: JSON.stringify({
         model: "llama3-8b-8192",
         messages: [{ role: "user", content: prompt }]
-      })
+      }),
+      signal: AbortSignal.timeout(API_TIMEOUT)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -154,6 +177,6 @@ async function runMockModel(prompt: string, name: string, delayMs: number): Prom
       // KỊCH BẢN MẶC ĐỊNH
       // ==========================================
       resolve(`**Phản hồi từ ${name}**:\n\nĐã tiếp nhận yêu cầu: "${prompt}".\n\nDựa trên dữ liệu phân tích, để giải quyết bài toán này chúng ta cần áp dụng các nguyên tắc cốt lõi của lĩnh vực có liên quan. Hệ thống đánh giá các tham số kỹ thuật và đề xuất quy trình thực hiện tối ưu nhất để đảm bảo hiệu suất và độ chính xác.\n\n*Note: Hệ thống đang chạy trong chế độ Live Fake (Giả lập thực tế) để mô phỏng độ trễ và khối lượng token cho biểu đồ Radar.*`);
-    }, delayMs + Math.random() * 2000);
+    }, delayMs);
   });
 }

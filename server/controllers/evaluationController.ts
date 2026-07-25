@@ -4,9 +4,9 @@ import { runBenchmark } from "../services/benchmarkEngine";
 export async function evaluatePrompt(req: Request, res: Response) {
   try {
     const { prompt, models, reference, apiKeys } = req.body;
-    const start = performance.now();
+    const start = Date.now();
     const results = await runBenchmark(prompt, models, reference, apiKeys);
-    const end = performance.now();
+    const end = Date.now();
     
     res.json({ results, totalTime: (end - start) / 1000 });
   } catch (error: any) {

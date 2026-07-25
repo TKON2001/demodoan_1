@@ -30,12 +30,17 @@ export async function retrieveContext(prompt: string, apiKey: string): Promise<s
     // 1. Khởi tạo Embeddings cho Knowledge Base (Chỉ chạy 1 lần khi cold start)
     if (cachedEmbeddings.length === 0) {
       const contents = knowledgeBase.map((kb) => kb.content);
-      const result = await ai.models.embedContent({
+      const embedPromise = ai.models.embedContent({
         model: "gemini-embedding-2-preview",
         contents: contents,
       });
 
-      if (result.embeddings) {
+      const result = await Promise.race([
+        embedPromise,
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Embedding Timeout")), 5000))
+      ]);
+
+      if (result && result.embeddings) {
         cachedEmbeddings = knowledgeBase.map((kb, i) => ({
           content: kb.content,
           domain: kb.domain,
@@ -45,12 +50,17 @@ export async function retrieveContext(prompt: string, apiKey: string): Promise<s
     }
 
     // 2. Tạo Embedding cho câu hỏi của người dùng (User Prompt)
-    const promptEmbedResult = await ai.models.embedContent({
+    const promptEmbedPromise = ai.models.embedContent({
       model: "gemini-embedding-2-preview",
       contents: [prompt],
     });
     
-    if (!promptEmbedResult.embeddings || promptEmbedResult.embeddings.length === 0) {
+    const promptEmbedResult = await Promise.race([
+      promptEmbedPromise,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Prompt Embedding Timeout")), 5000))
+    ]);
+    
+    if (!promptEmbedResult || !promptEmbedResult.embeddings || promptEmbedResult.embeddings.length === 0) {
         return "";
     }
     const promptEmbedding = promptEmbedResult.embeddings[0].values;
