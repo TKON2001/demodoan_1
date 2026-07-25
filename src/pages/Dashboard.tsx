@@ -108,7 +108,7 @@ export function Dashboard() {
             <div className="flex flex-col">
               <h1 className="text-xl font-semibold text-gray-900 leading-tight">AI Nexus Evaluation Platform</h1>
               {apiKeys.useMockMode && (
-                <span className="text-[10px] font-bold tracking-wider text-amber-600 uppercase flex items-center gap-1 mt-0.5">
+                <span className="hidden">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                   Đang bật Chế độ Giả lập (Mock Mode)
                 </span>
