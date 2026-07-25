@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const API_TIMEOUT = 8000; // 8s max per model request
+const API_TIMEOUT = 5000; // 5s max per model request
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
   let timeoutId: any;

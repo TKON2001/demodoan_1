@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { retrieveContext } from "./ragService";
 
-const JUDGE_TIMEOUT = 8000;
+const JUDGE_TIMEOUT = 4000;
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
   let timeoutId: any;

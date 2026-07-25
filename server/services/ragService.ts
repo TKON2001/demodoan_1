@@ -37,7 +37,7 @@ export async function retrieveContext(prompt: string, apiKey: string): Promise<s
 
       const result = await Promise.race([
         embedPromise,
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Embedding Timeout")), 5000))
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Embedding Timeout")), 2500))
       ]);
 
       if (result && result.embeddings) {
@@ -57,7 +57,7 @@ export async function retrieveContext(prompt: string, apiKey: string): Promise<s
     
     const promptEmbedResult = await Promise.race([
       promptEmbedPromise,
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Prompt Embedding Timeout")), 5000))
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Prompt Embedding Timeout")), 2500))
     ]);
     
     if (!promptEmbedResult || !promptEmbedResult.embeddings || promptEmbedResult.embeddings.length === 0) {
